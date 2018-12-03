@@ -1,8 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>{{ recipe.title }}</h1>
-    <img class="card-img-top" src="{{ recipe.image }}" alt="">
-    <p>{{ recipe.short_description }}</p>
-    <div></div>
-{%  endblock %}
+    <h1 class="mt-2">{{ recipe.title }}</h1>
+
+    <div class="row pt-3">
+        <div class="col-lg-6">
+            <img class="card-img-top border-right" src="{{ recipe.image }}" alt="">
+            <hr>
+            <p>{{ recipe.short_description }}</p>
+            <br>
+        </div>
+        <div class="col-lg-6">
+            <h3>Ingredients</h3>
+            <p style="white-space: pre-wrap;">{{ recipe.ingredients }}</p>
+        </div>
+    </div>
+    <h3>Method</h3>
+    <p style="white-space: pre-wrap;">{{ recipe.method }}</p>
+    <p>Recipe submitted by: {{ recipe.user }}</p>
+{% endblock %}
