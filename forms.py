@@ -1,6 +1,11 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, FieldList, TextAreaField
+from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms.validators import DataRequired, Length, EqualTo, Email
+from flask_uploads import UploadSet, IMAGES
+
+
+images = UploadSet('images', IMAGES)
 
 
 class LoginForm(FlaskForm):
@@ -20,3 +25,13 @@ class RegisterForm(FlaskForm):
     email = StringField('Email Address', validators=[Length(min=6, max=35), Email()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Register')
+
+
+class CreateRecipeForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    short_description = TextAreaField('Short Description', validators=[DataRequired()])
+    ingredients = TextAreaField('Ingredients (one per line please)', validators=[DataRequired()])
+    method = TextAreaField('Instructions', validators=[DataRequired()])
+    tags = StringField('Tags (separate by comma please)', validators=[DataRequired()])
+    image = StringField('Image Link (full path)', validators=[DataRequired()])
+    submit = SubmitField('Add Recipe')

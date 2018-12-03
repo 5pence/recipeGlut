@@ -7,3 +7,7 @@
 .card {
   height: 100%;
 }
+.jumbotron {
+  background-image:url("../images/still_life_pencil.jpg");
+  background-size: cover;
+}

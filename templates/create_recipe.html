@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Add Recipe</h1>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li class="alert-warning">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <form action="" method="post" enctype="multipart/form-data">
+    {{ form.csrf_token }}
+        <p>
+            {{ form.title.label }}<br>
+            {{ form.title(size=80) }}<br>
+            {%  for error in form.title.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.short_description.label }}<br>
+            {{ form.short_description(cols="120", rows="3") }}<br>
+            {%  for error in form.short_description.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <div class="row">
+            <div class="col-4">
+                <p>
+                    {{ form.ingredients.label }}<br>
+                    {{ form.ingredients(cols="40", rows="16") }}
+                    {%  for error in form.ingredients.errors %}
+                        <span style="color: red;">{{ error }}</span>
+                    {% endfor %}
+                </p>
+            </div>
+            <div class="col-8">
+                <p>
+                    {{ form.method.label }}<br>
+                    {{ form.method(cols="80", rows="16") }}
+                    {%  for error in form.method.errors %}
+                        <span style="color: red;">{{ error }}</span>
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+        <p>
+            {{ form.tags.label }}<br>
+            {{ form.tags(size=80) }}<br>
+            {%  for error in form.tags.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.image.label }}<br>
+            {{ form.image(size=80) }}<br>
+            {%  for error in form.image.errors %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </div>
+
+
+    </form>
+    <p>Not registered? Then please <a href="{{ url_for('register') }}">register here</a> </p>
+{%  endblock %}

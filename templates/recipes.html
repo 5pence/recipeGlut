@@ -1,21 +1,18 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <!-- Jumbotron Header -->
-    <header class="jumbotron my-4">
-        <h1 class="display-3">A Glut of Recipes!</h1>
-        <p class="lead ">You feed me, I feed You</p>
-        <div class="row">
-            <div class="col-lg-4">
-                <form class="input-group mb-3" action="{{ url_for('search') }}">
-                    <input class="form-control" type="text" name="query"/>
-                    <div class="input-group-append">
-                        <button class="btn btn-primary" type="submit">Find Recipes!</button>
-                    </div>
-                </form>
-            </div>
+    <div class="row mt-2">
+        <div class="col-lg-8">
+            <h1>Recipes</h1>
         </div>
-    </header>
+        <div class="col-lg-4">
+            <form action="{{ url_for('search') }}">
+                <input type="text" name="query"/>
+                <input type="submit" class="btn btn-primary" value="Search Recipes!"/>
+            </form>
+        </div>
+    </div>
+    <hr>
     <div class="row text-center">
         {% for recipe in recipes %}
             <div class="col-lg-3 col-md-6 mb-4">
@@ -33,5 +30,4 @@
             </div>
         {% endfor %}
     </div>
-    <!-- /.row -->
 {% endblock %}
