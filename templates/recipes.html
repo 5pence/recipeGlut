@@ -29,13 +29,24 @@
                 </div>
             </div>
         {% endfor %}
-        Pages:
-        {% for pagenum in pages %}
-            {% if pagenum == page %}
-                {{ pagenum }}
-            {% else %}
-                <a href="{{ url_for('recipes', page=pagenum) }}">{{ pagenum }}</a>
-            {% endif %}
-        {% endfor %}
+    </div>
+    <div>
+        <nav aria-label="Search Results Pages">
+            <ul class="pagination pagination-lg justify-content-center">
+                {% for pagenum in pages %}
+                    {% if pagenum == page %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ pagenum }}
+                                <span class="sr-only">(current)</span>
+                            </span>
+                        </li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link"
+                                                 href="{{ url_for('recipes', page=pagenum) }}">{{ pagenum }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </nav>
+
     </div>
 {% endblock %}

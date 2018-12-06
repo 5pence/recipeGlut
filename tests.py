@@ -1,6 +1,6 @@
 '''
-Run with:
-    python -m unittest
+These Test classes test the business logic of users and recipe
+views and models.
 '''
 
 import unittest
@@ -12,6 +12,7 @@ import app as app_module
 
 app = app_module.app
 
+# Setting up test DB on Mongo and switching CSRF checks off
 app.config["TESTING"] = True
 app.config["WTF_CSRF_ENABLED"] = False
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/recipeGlutTesting'
@@ -21,6 +22,7 @@ app_module.mongo = mongo
 
 
 class AppTestCase(unittest.TestCase):
+    """Clean the DB"""
     def setUp(self):
         self.client = app.test_client()
         with app.app_context():
@@ -29,6 +31,7 @@ class AppTestCase(unittest.TestCase):
 
 
 class AppTests(AppTestCase):
+    """Test Home page loading"""
     def test_index(self):
         res = self.client.get('/')
         data = res.data.decode('utf-8')
@@ -36,13 +39,14 @@ class AppTests(AppTestCase):
         assert 'A Glut of Recipes' in data
 
     def test_recipes(self):
+        """Test recipe list page loading"""
         res = self.client.get('/recipes')
         data = res.data.decode('utf-8')
         assert res.status == '200 OK'
         assert 'features' in data
 
     def test_register_mismatch_passwords(self):
-        """Entering mismatched passwords on the registration form -- needs fixing weird email thing"""
+        """Check mismatched passwords on the registration form, expecting mismatch message"""
         res = self.client.post('/register', data=dict(
             username='fred',
             password='joijqwdoijqwoid',
@@ -53,6 +57,7 @@ class AppTests(AppTestCase):
         assert 'Passwords must match' in data
 
     def test_register_duplicate_username(self):
+        """Check entering a username that is already used returns username is already taken message"""
         res = self.client.post('/register', follow_redirects=True, data=dict(
             username='fred',
             password='asdfasdfasdf',
@@ -72,6 +77,7 @@ class AppTests(AppTestCase):
         assert 'that username is already taken' in data
 
     def test_register_successful(self):
+        """Check valid registration redirects to index page"""
         res = self.client.post('/register', follow_redirects=True, data=dict(
             username='freddie',
             password='asdfasdfasdf',
@@ -84,7 +90,12 @@ class AppTests(AppTestCase):
 
 
 class LoggedInTests(AppTestCase):
+    """Separate class to clean DB with no cross referencing"""
     def setUp(self):
+        """
+        Clean the DB, add new user and recipe and check user and new recipe
+        shows on home after redirect
+        """
         super().setUp()
         res = self.client.post('/register', follow_redirects=True, data=dict(
             username='fred3',
@@ -101,10 +112,11 @@ class LoggedInTests(AppTestCase):
             'image': 'some image link'
         })
         data = res.data.decode('utf-8')
-        assert 'You feed me' in data
+        assert 'fred3' in data
+        assert 'Mac and cheese'
 
     def test_create_recipe(self):
-        """"""
+        """Create recipe and check new recipe shows after redirect"""
         res = self.client.post('/create_recipe', follow_redirects=True, data={
             'title': 'Slow - cooker vegan bean chilli',
             'short_description': 'Get this vegan',
@@ -114,19 +126,23 @@ class LoggedInTests(AppTestCase):
             'image': 'some image link'
         })
         data = res.data.decode('utf-8')
-        assert 'You feed me' in data
+        assert 'vegan' in data
 
     def test_recipe_page(self):
-        """Viewing a recipe page"""
+        """Find Recipe and go to it's recipe page"""
         res = self.client.get('/recipes')
+        # use regular expression to find Object id of recipe
         ids = re.findall(r'href="/recipe/(\w+)"', res.data.decode("utf8"))
+        # check we have something
         assert len(ids) > 0
+        # to go that recipe page using extracted id
         res = self.client.get('/recipe/{}'.format(ids[0]))
         data = res.data.decode('utf-8')
         assert res.status == '200 OK'
         assert 'Mac and cheese' in data
 
     def test_edit_recipe(self):
+        """Edit recipe and check redirect to home page"""
         res = self.client.get('/recipes')
         ids = re.findall(r'href="/recipe/(\w+)"', res.data.decode("utf8"))
         assert len(ids) > 0
@@ -145,9 +161,12 @@ class LoggedInTests(AppTestCase):
         assert res.status == '200 OK'
 
     def test_delete_recipe(self):
+        """Delete recipe and check recipe is not present after redirect"""
         res = self.client.get('/recipes')
+        # use regular expression to find Object id of recipe
         ids = re.findall(r'href="/recipe/(\w+)"', res.data.decode("utf8"))
         assert len(ids) > 0
+        # togo that delete recipe page using extracted id
         res = self.client.post('/delete_recipe/{}'.format(ids[0]), follow_redirects=True)
         data = res.data.decode('utf-8')
         assert res.status == '200 OK'
