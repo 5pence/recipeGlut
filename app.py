@@ -1,10 +1,11 @@
 from flask import Flask, render_template, flash, redirect, url_for, request, session
 from config import Config
-from forms import LoginForm, RegisterForm, CreateRecipeForm
-from flask_pymongo import PyMongo
+from forms import LoginForm, RegisterForm, CreateRecipeForm, EditRecipeForm, ConfirmDelete
+from flask_pymongo import PyMongo, DESCENDING
 from bson.objectid import ObjectId
 import bcrypt
 import re
+import math
 
 app = Flask(__name__)
 app.config['MONGO_URI'] = 'mongodb://localhost:27017/recipeGlut'
@@ -16,8 +17,7 @@ mongo = PyMongo(app)
 @app.route('/')
 @app.route('/index')
 def index():
-    four_recipes = mongo.db.recipes.find().limit(4)
-    # print(list(four_recipes))
+    four_recipes = mongo.db.recipes.find().sort([('views', DESCENDING)]).limit(4)
     return render_template('index.html', title="Home", recipes=four_recipes)
 
 
@@ -58,7 +58,7 @@ def register():
 
         if existing_user is None:
             hash_pass = bcrypt.hashpw(request.form['password'].encode('utf-8'), bcrypt.gensalt())
-            users.insert({'name': request.form['username'],
+            users.insert_one({'name': request.form['username'],
                           'password': hash_pass,
                           'email': request.form['email']})
             session['username'] = request.form['username']
@@ -72,19 +72,62 @@ def register():
 def create_recipe():
     form = CreateRecipeForm(request.form)
     if form.validate_on_submit():
-        recipes = mongo.db.recipes
-        print('i am here')
-        recipes.insert({
+        recipes_db = mongo.db.recipes
+        recipes_db.insert_one({
             'title': request.form['title'],
             'user': session['username'],
             'short_description': request.form['short_description'],
             'ingredients': request.form['ingredients'],
             'method': request.form['method'],
             'tags': request.form['tags'],
-            'image': request.form['image']
+            'image': request.form['image'],
+            'views': 0
         })
         return redirect(url_for('index', title='New Recipe Added'))
     return render_template('create_recipe.html', title='create a recipe', form=form)
+
+
+@app.route('/edit_recipe/<recipe_id>', methods=['GET', 'POST'])
+def edit_recipe(recipe_id):
+    recipe_db = mongo.db.recipes.find_one_or_404({'_id': ObjectId(recipe_id)})
+    if request.method == 'GET':
+        form = EditRecipeForm(data=recipe_db)
+        return render_template('edit_recipe.html', recipe=recipe_db, form=form)
+    form = EditRecipeForm(request.form)
+    if form.validate_on_submit():
+        recipes_db = mongo.db.recipes
+        recipes_db.update_one({
+            '_id': ObjectId(recipe_id),
+        }, {
+            '$set': {
+                'title': request.form['title'],
+                'user': session['username'],
+                'short_description': request.form['short_description'],
+                'ingredients': request.form['ingredients'],
+                'method': request.form['method'],
+                'tags': request.form['tags'],
+                'image': request.form['image'],
+            }
+        })
+        return redirect(url_for('index', title='New Recipe Added'))
+    return render_template('edit_recipe.html', recipe=recipe_db, form=form)
+
+
+@app.route('/delete_recipe/<recipe_id>', methods=['GET', 'POST'])
+def delete_recipe(recipe_id):
+    recipe_db = mongo.db.recipes.find_one_or_404({'_id': ObjectId(recipe_id)})
+    if request.method == 'GET':
+        form = ConfirmDelete(data=recipe_db)
+        return render_template('delete_recipe.html', title="Delete Recipe", form=form)
+    form = ConfirmDelete(request.form)
+    if form.validate_on_submit():
+        recipes_db = mongo.db.recipes
+        recipes_db.delete_one({
+            '_id': ObjectId(recipe_id),
+        })
+        return redirect(url_for('index', title='Recipe Glut Updated'))
+    return render_template('delete_recipe.html', title="delete recipe", recipe=recipe_db, form=form)
+
 
 @app.route('/search')
 def search():
@@ -99,20 +142,31 @@ def search():
     })
     return render_template('search.html', query=orig_query, results=results)
 
+
 @app.route('/recipes')
 def recipes():
-    all_recipes = mongo.db.recipes.find()
-    return render_template('recipes.html', recipes=all_recipes)
+    per_page = 4
+    page = int(request.args.get('page', 1))
+    total = mongo.db.recipes.count_documents({})
+    all_recipes = mongo.db.recipes.find().skip((page - 1)*per_page).limit(per_page)
+    pages = range(1, int(math.ceil(total / per_page)) + 1)
+    return render_template('recipes.html', recipes=all_recipes, page=page, pages=pages, total=total)
 
 
 @app.route('/recipe/<recipe_id>')
 def recipe(recipe_id):
-    recipe = mongo.db.recipes.find_one_or_404({'_id': ObjectId(recipe_id)})
-    return render_template('recipe.html', recipe=recipe)
+    mongo.db.recipes.find_one_and_update(
+        {'_id': ObjectId(recipe_id)},
+        {'$inc': {'views': 1}}
+    )
+    recipe_db = mongo.db.recipes.find_one_or_404({'_id': ObjectId(recipe_id)})
+    return render_template('recipe.html', recipe=recipe_db)
+
 
 @app.errorhandler(404)
 def handle_404(exception):
-    return render_template('404.html', exception = exception)
+    return render_template('404.html', exception=exception)
+
 
 if __name__ == '__main__':
     app.config['TRAP_BAD_REQUEST_ERRORS'] = True

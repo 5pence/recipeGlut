@@ -29,5 +29,13 @@
                 </div>
             </div>
         {% endfor %}
+        Pages:
+        {% for pagenum in pages %}
+            {% if pagenum == page %}
+                {{ pagenum }}
+            {% else %}
+                <a href="{{ url_for('recipes', page=pagenum) }}">{{ pagenum }}</a>
+            {% endif %}
+        {% endfor %}
     </div>
 {% endblock %}

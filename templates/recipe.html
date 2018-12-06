@@ -5,6 +5,7 @@
 
     <div class="row pt-3">
         <div class="col-lg-6">
+            <p>Views: {{ recipe.views }}</p>
             <img class="card-img-top border-right" src="{{ recipe.image }}" alt="">
             <hr>
             <p>{{ recipe.short_description }}</p>
@@ -15,6 +16,12 @@
             <p style="white-space: pre-wrap;">{{ recipe.ingredients }}</p>
         </div>
     </div>
+    {% if session['username'] == recipe.user %}
+        <div class="row float-right">
+            <a href="{{ url_for('edit_recipe', recipe_id=recipe._id) }}" class="btn btn-secondary mr-3">Edit Recipe</a>
+            <a href="{{ url_for('delete_recipe', recipe_id=recipe._id) }}" class="btn btn-danger">Delete Recipe</a>
+        </div>
+    {% endif %}
     <h3>Method</h3>
     <p style="white-space: pre-wrap;">{{ recipe.method }}</p>
     <p>Recipe submitted by: {{ recipe.user }}</p>
