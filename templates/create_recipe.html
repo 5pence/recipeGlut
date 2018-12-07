@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% block nav_create_recipe %}active{% endblock %}
 {% block content %}
     <h1>Add Recipe</h1>
     {% with messages = get_flashed_messages() %}

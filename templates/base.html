@@ -26,24 +26,23 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item active">
+                <li class="nav-item {% block nav_index %}{% endblock %}">
                     <a class="nav-link" href="{{ url_for('index') }}">Home
-                        {#                <span class="sr-only">(current)</span>#}
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('recipes') }}">Recipes</a>
+                    <a class="nav-link {% block nav_recipes %}{% endblock %}" href="{{ url_for('recipes') }}">Recipes</a>
                 </li>
                 {% if 'username' not in session %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                        <a class="nav-link {% block nav_login %}{% endblock %}" href="{{ url_for('login') }}">Login</a>
                     </li>
                 {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('create_recipe') }}">Add Recipe</a>
+                        <a class="nav-link {% block nav_create_recipe %}{% endblock %}" href="{{ url_for('create_recipe') }}">Add Recipe</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                        <a class="nav-link {% block nav_logout %}{% endblock %}" href="{{ url_for('logout') }}">Logout</a>
                     </li>
                 {% endif %}
             </ul>
