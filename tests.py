@@ -164,7 +164,7 @@ class LoggedInTests(AppTestCase):
         """Delete recipe and check recipe is not present after redirect"""
         res = self.client.get('/recipes')
         # use regular expression to find Object id of recipe
-        ids = re.findall(r'href="/recipe/(\w+)"', res.data.decode("utf8"))
+        ids = re.findall(r'href="/recipe/(\w+)"', res.data.decode("utf-8"))
         assert len(ids) > 0
         # togo that delete recipe page using extracted id
         res = self.client.post('/delete_recipe/{}'.format(ids[0]), follow_redirects=True)
