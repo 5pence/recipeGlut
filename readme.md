@@ -35,7 +35,7 @@ The registration page and logic are tested. I test for mismatched passwords, dup
 
 The login page is tested throughout my tests as a number of my test operations require a logged in user. 
 
-The create recipe page is tested by checking that a recipe is entered, the page redirects and teh new recipe is present on the index page.
+The create recipe page is tested by checking that a recipe is entered, the page redirects and the new recipe is present on the index page.
 
 The recipes to recipe page is tested by searching for any recipes on the recipe page, getting its id number and going to that recipe details page and checking the contents are there.  
 
