@@ -1,4 +1,4 @@
-# Project 5 - Unicorn Attractor
+# Project 4 - Recipe Glut Cookbook
 
 ##### What does it do and what need does it fulfil?
 This project uses skills learnt to build a Flask Website that uses a Mongo backend. It is for people to view recipes, register as users and create, update and delete their own recipes. Users can also search for recipes that contain for the searched word in its tags, title or ingredients.
