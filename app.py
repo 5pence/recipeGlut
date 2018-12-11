@@ -6,10 +6,12 @@ from bson.objectid import ObjectId
 import bcrypt
 import re
 import math
+import os
 
 app = Flask(__name__)
 # app.config['MONGO_URI'] = 'mongodb://localhost:27017/recipeGlut'
-app.config['MONGO_URI'] = 'mongodb://admini:bluehorses1@ds013619.mlab.com:13619/heroku_dz5vln05'
+#app.config['MONGO_URI'] = 'mongodb://admini:bluehorses1@ds013619.mlab.com:13619/heroku_dz5vln05'
+app.config['MONGO_URI'] = os.environ.get("MONGODB_URI")
 app.config.from_object(Config)
 
 mongo = PyMongo(app)
